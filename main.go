@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"paymentsystem/config"
 	"paymentsystem/controller"
+	"paymentsystem/database"
+	"paymentsystem/service"
 )
 
 func main() {
@@ -18,12 +20,24 @@ func main() {
 
 	portNumber := config.String("portNumber")
 
-	objectPaymentController := controller.PaymentController{}
-	objectUserController := controller.UserController{}
-	objectNotificationController := controller.NotificationController{}
+	objectPaymentController := controller.PaymentController{
+		Service: service.PaymentService{
+			Database: database.PaymentDataBase{},
+		},
+	}
+
+	objectUserController := controller.UserController{
+		Service: service.UserService{
+			Database: database.UserDataBase{},
+		},
+	}
+	objectNotificationController := controller.NotificationController{
+		Service: service.NotificationService{
+			Database: database.NotificationDataBase{},
+		},
+	}
 
 	// Routes for the Payment
-
 	http.HandleFunc("/createPayment", objectPaymentController.CreatePayment)
 	http.HandleFunc("/getPayment", objectPaymentController.GetPayment)
 	http.HandleFunc("/processPayment", objectPaymentController.ProcessPayment)
@@ -35,7 +49,6 @@ func main() {
 	http.HandleFunc("/addUser", objectUserController.CreateUser)
 	http.HandleFunc("/updateUser", objectUserController.UpdateUser)
 	http.HandleFunc("/deleteUser", objectUserController.DeleteUser)
-	http.HandleFunc("/singleUserDetail", objectUserController.GetSingleUserDetail)
 
 	//Routes for Notification
 	http.HandleFunc("/createNotification", objectNotificationController.SendPaymentNotification)

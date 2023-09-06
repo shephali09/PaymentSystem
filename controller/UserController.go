@@ -5,21 +5,23 @@ import (
 	"fmt"
 	"net/http"
 	"paymentsystem/entity"
+	"paymentsystem/service"
 	util "paymentsystem/utility"
 	"strconv"
-	"time"
 )
 
 var UserDetails = make([]entity.User, 0)
 
 type UserController struct {
+	Service service.UserService
 }
 
 func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodGet)
 
 	w.Header().Set("Content-Type", "Application/json")
-	err := json.NewEncoder(w).Encode(UserDetails)
+	userDetails := uc.Service.GetUser()
+	err := json.NewEncoder(w).Encode(userDetails)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -36,10 +38,8 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	newUser.CreatedAt = time.Now().Format("02-01-2006T15:04:05")
-	newUser.UpdatedAt = time.Now().Format("02-01-2006T15:04:05")
 
-	UserDetails = append(UserDetails, newUser)
+	newUser = uc.Service.CreateUser(newUser)
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, newUser)
 }
@@ -54,16 +54,12 @@ func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, user := range UserDetails {
-		if user.UserId == updatedUser.UserId {
-			updatedUser.CreatedAt = UserDetails[i].CreatedAt
-			updatedUser.UpdatedAt = time.Now().Format("02-01-2006T15:04:05")
-			UserDetails[i] = updatedUser
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, updatedUser)
-		}
+	newUpdatedUser, err := uc.Service.UpdateUser(updatedUser)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
 	}
-
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, newUpdatedUser)
 }
 
 func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -74,44 +70,12 @@ func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-
-	for i, user := range UserDetails {
-		if user.UserId == userId {
-			UserDetails = append(UserDetails[:i], UserDetails[i+1:]...)
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprintln(w, "User deleted successfully!")
-		}
-	}
-
-}
-
-func (uc UserController) GetSingleUserDetail(w http.ResponseWriter, r *http.Request) {
-	util.CheckMethod(r, w, http.MethodGet)
-	userIdStr := r.URL.Query().Get("id")
-	userId, err := strconv.Atoi(userIdStr)
+	err = uc.Service.DeleteUser(userId)
+	fmt.Println(err)
 	if err != nil {
-		http.Error(w, "Invalid User ID", http.StatusBadRequest)
+		http.Error(w, "User not found", http.StatusBadRequest)
+		return
 	}
-
-	var userFound *entity.User
-	for _, user := range UserDetails {
-		if user.UserId == userId {
-			userFound = &user
-			w.Header().Set("Content-Type", "Aplication/json")
-
-			err = json.NewEncoder(w).Encode(user)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			break
-
-		}
-	}
-	if userFound != nil {
-		w.WriteHeader(http.StatusCreated)
-
-	} else {
-		http.Error(w, "Payment not found", http.StatusNotFound)
-	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "User deleted successfully!")
 }
