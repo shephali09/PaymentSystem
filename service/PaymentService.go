@@ -7,10 +7,16 @@ import (
 	"time"
 )
 
+/*
+Payment Service struct
+*/
 type PaymentService struct {
 	Database database.PaymentDataBase
 }
 
+/*
+Create Payment service
+*/
 func (ps PaymentService) CreatePayment(newPayment entity.Payment) entity.Payment {
 
 	// starting of the business logic if there is any.
@@ -21,11 +27,17 @@ func (ps PaymentService) CreatePayment(newPayment entity.Payment) entity.Payment
 	return ps.Database.CreatePayment(newPayment)
 }
 
+/*
+Get Payment service
+*/
 func (ps PaymentService) GetPayment() []entity.Payment {
 	return ps.Database.GetPayment()
 }
 
-func (ps PaymentService) GetSingleDetail(PaymentId int) (entity.Payment, error) {
+/*
+Get Single Payment Detail service
+*/
+func (ps PaymentService) GetSingleDetail(PaymentId string) (entity.Payment, error) {
 	paymentDetails := ps.Database.GetSingleDetail(PaymentId)
 	for _, payment := range paymentDetails {
 		if payment.PaymentId == PaymentId {
@@ -36,6 +48,9 @@ func (ps PaymentService) GetSingleDetail(PaymentId int) (entity.Payment, error) 
 	return entity.Payment{}, fmt.Errorf("payment Not found")
 }
 
+/*
+Process Payment service
+*/
 func (ps PaymentService) ProcessPayment(updatedPayment entity.Payment) (entity.Payment, error) {
 	processedPayment, err := ps.Database.ProcessPayment(updatedPayment)
 	if err != nil {
@@ -46,7 +61,10 @@ func (ps PaymentService) ProcessPayment(updatedPayment entity.Payment) (entity.P
 
 }
 
-func (ps PaymentService) GetPaymentStatus(PaymentId int) (string, error) {
+/*
+Get Payment Status service
+*/
+func (ps PaymentService) GetPaymentStatus(PaymentId string) (string, error) {
 	status, err := ps.Database.GetPaymentStatus(PaymentId)
 	if err != nil {
 		return "", err

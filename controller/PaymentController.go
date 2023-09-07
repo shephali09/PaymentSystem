@@ -7,13 +7,18 @@ import (
 	"paymentsystem/entity"
 	"paymentsystem/service"
 	util "paymentsystem/utility"
-	"strconv"
 )
 
+/*
+Payment Controller Struct
+*/
 type PaymentController struct {
 	Service service.PaymentService
 }
 
+/*
+Create Payment endpoint
+*/
 func (pc PaymentController) CreatePayment(w http.ResponseWriter, r *http.Request) {
 
 	// checking for the method and responding with the error
@@ -34,6 +39,9 @@ func (pc PaymentController) CreatePayment(w http.ResponseWriter, r *http.Request
 
 }
 
+/*
+Get Payment endpoint
+*/
 func (pc PaymentController) GetPayment(w http.ResponseWriter, r *http.Request) {
 
 	util.CheckMethod(r, w, http.MethodGet)
@@ -50,14 +58,13 @@ func (pc PaymentController) GetPayment(w http.ResponseWriter, r *http.Request) {
 
 }
 
+/*
+Get Single Payment Detail endpoint
+*/
 func (pc PaymentController) GetSingleDetail(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodGet)
 
-	PaymentIdStr := r.URL.Query().Get("id")
-	PaymentId, err := strconv.Atoi(PaymentIdStr)
-	if err != nil {
-		http.Error(w, "Invalid Payment ID", http.StatusBadRequest)
-	}
+	PaymentId := r.URL.Query().Get("id")
 
 	payment, err := pc.Service.GetSingleDetail(PaymentId)
 	if err != nil {
@@ -73,6 +80,10 @@ func (pc PaymentController) GetSingleDetail(w http.ResponseWriter, r *http.Reque
 
 	w.WriteHeader(http.StatusOK)
 }
+
+/*
+	Process Payment endpoint
+*/
 
 func (pc PaymentController) ProcessPayment(w http.ResponseWriter, r *http.Request) {
 
@@ -93,16 +104,14 @@ func (pc PaymentController) ProcessPayment(w http.ResponseWriter, r *http.Reques
 	fmt.Fprintln(w, processedPayment)
 }
 
+/*
+Get Payment Status endpoint
+*/
 func (pc PaymentController) GetPaymentStatus(w http.ResponseWriter, r *http.Request) {
 
 	util.CheckMethod(r, w, http.MethodGet)
 
-	paymentIDStr := r.URL.Query().Get("id")
-	paymentID, err := strconv.Atoi(paymentIDStr)
-	if err != nil {
-		http.Error(w, "Invalid payment ID", http.StatusBadRequest)
-		return
-	}
+	paymentID := r.URL.Query().Get("id")
 
 	status, err := pc.Service.GetPaymentStatus(paymentID)
 	if err != nil {

@@ -7,15 +7,18 @@ import (
 	"paymentsystem/entity"
 	"paymentsystem/service"
 	util "paymentsystem/utility"
-	"strconv"
 )
 
-var UserDetails = make([]entity.User, 0)
-
+/*
+User Controller Struct
+*/
 type UserController struct {
 	Service service.UserService
 }
 
+/*
+Get User endpoint
+*/
 func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodGet)
 
@@ -29,6 +32,9 @@ func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+/*
+Create User endpoint
+*/
 func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodPost)
 
@@ -44,6 +50,9 @@ func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, newUser)
 }
 
+/*
+Update User endpoint
+*/
 func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodPut)
 
@@ -62,15 +71,16 @@ func (uc UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, newUpdatedUser)
 }
 
+/*
+Delete endpoint [DeleteUser]
+*/
+
 func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodDelete)
 
-	userIdStr := r.URL.Query().Get("id")
-	userId, err := strconv.Atoi(userIdStr)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-	err = uc.Service.DeleteUser(userId)
+	userId := r.URL.Query().Get("id")
+
+	err := uc.Service.DeleteUser(userId)
 	fmt.Println(err)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusBadRequest)

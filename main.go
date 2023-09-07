@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,9 @@ import (
 	"paymentsystem/controller"
 	"paymentsystem/database"
 	"paymentsystem/service"
+
+	firestore "cloud.google.com/go/firestore"
+	"google.golang.org/api/option"
 )
 
 func main() {
@@ -18,22 +22,38 @@ func main() {
 		return
 	}
 
+	// create connection object here and send it to all the controller
+	ctx := context.Background()
+	projectId := "paymentsystem-4337a"
+	options := option.WithCredentialsFile("paymentsystem-4337a-firebase-adminsdk-zwgan-b6fdcc7afd.json")
+	connection, err := firestore.NewClient(ctx, projectId, options)
+	if err != nil {
+		fmt.Println("Error ", err)
+		return
+	}
+
 	portNumber := config.String("portNumber")
 
 	objectPaymentController := controller.PaymentController{
 		Service: service.PaymentService{
-			Database: database.PaymentDataBase{},
+			Database: database.PaymentDataBase{
+				ConnectionObjectClient: connection,
+			},
 		},
 	}
 
 	objectUserController := controller.UserController{
 		Service: service.UserService{
-			Database: database.UserDataBase{},
+			Database: database.UserDataBase{
+				ConnectionObjectClient: connection,
+			},
 		},
 	}
 	objectNotificationController := controller.NotificationController{
 		Service: service.NotificationService{
-			Database: database.NotificationDataBase{},
+			Database: database.NotificationDataBase{
+				ConnectionObjectClient: connection,
+			},
 		},
 	}
 

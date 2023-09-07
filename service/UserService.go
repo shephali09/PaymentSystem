@@ -6,14 +6,24 @@ import (
 	"time"
 )
 
+/*
+User Service struct
+*/
 type UserService struct {
 	Database database.UserDataBase
 }
 
+/*
+Get User Service
+*/
 func (us UserService) GetUser() []entity.User {
 	return us.Database.GetUser()
 
 }
+
+/*
+	Create User service
+*/
 
 func (us UserService) CreateUser(newUser entity.User) entity.User {
 	newUser.CreatedAt = time.Now().Format("02-01-2006T15:04:05")
@@ -21,6 +31,10 @@ func (us UserService) CreateUser(newUser entity.User) entity.User {
 	return us.Database.CreateUser(newUser)
 
 }
+
+/*
+	Update User service
+*/
 
 func (us UserService) UpdateUser(updatedUser entity.User) (entity.User, error) {
 	newUpdatedUser, err := us.Database.UpdateUser(updatedUser)
@@ -32,7 +46,12 @@ func (us UserService) UpdateUser(updatedUser entity.User) (entity.User, error) {
 
 }
 
-func (us UserService) DeleteUser(userId int) error {
+/*
+  Delete User Service
+*/
+
+func (us UserService) DeleteUser(userId string) error {
+
 	err := us.Database.DeleteUser(userId)
 
 	if err != nil {

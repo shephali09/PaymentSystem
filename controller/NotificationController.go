@@ -9,12 +9,16 @@ import (
 	util "paymentsystem/utility"
 )
 
-var NotificationDetails = make([]entity.Notification, 0)
-
+/*
+Notification Controller struct
+*/
 type NotificationController struct {
 	Service service.NotificationService
 }
 
+/*
+Send Payment Notification endpoint
+*/
 func (nc NotificationController) SendPaymentNotification(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodPost)
 
@@ -30,6 +34,9 @@ func (nc NotificationController) SendPaymentNotification(w http.ResponseWriter, 
 	fmt.Fprintln(w, newNotification)
 }
 
+/*
+Get Notification endpoint
+*/
 func (nc NotificationController) GetNotification(w http.ResponseWriter, r *http.Request) {
 	util.CheckMethod(r, w, http.MethodGet)
 
